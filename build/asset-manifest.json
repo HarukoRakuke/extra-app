@@ -1,0 +1,29 @@
+{
+  "files": {
+    "main.css": "/static/css/main.d4d90e51.css",
+    "main.js": "/static/js/main.b6e574c5.js",
+    "static/media/Inter500.otf": "/static/media/Inter500.d1530b703e83bbe8afb2.otf",
+    "static/media/Inter400.otf": "/static/media/Inter400.592476c225bc2bdd195f.otf",
+    "static/media/Inter500.ttf": "/static/media/Inter500.addd187cfa5f5e2586f3.ttf",
+    "static/media/Inter400.ttf": "/static/media/Inter400.3101898fefb27c29f7de.ttf",
+    "static/media/Inter300.ttf": "/static/media/Inter300.600ac710e1f28f324235.ttf",
+    "static/media/Inter300.otf": "/static/media/Inter300.f70b465fac229d73e982.otf",
+    "static/media/Inter500.woff": "/static/media/Inter500.7b3842c71b732e2bcb49.woff",
+    "static/media/Inter300.woff": "/static/media/Inter300.76f1886dfb5ea42e048f.woff",
+    "static/media/Inter400.woff": "/static/media/Inter400.a74d11641d89d391b9ae.woff",
+    "static/media/Inter500.woff2": "/static/media/Inter500.7bf7ce4d79ca0ca6f97a.woff2",
+    "static/media/Inter300.woff2": "/static/media/Inter300.8878b7f8ff163eec5990.woff2",
+    "static/media/Inter400.woff2": "/static/media/Inter400.08a37df54f279bf55c1d.woff2",
+    "static/media/logo.png": "/static/media/logo.578a0092954e3ad1d87e.png",
+    "static/media/logowhite.png": "/static/media/logowhite.b7ab76cf7791ea8dcc50.png",
+    "static/media/NeutralFaceBold.otf": "/static/media/NeutralFaceBold.c2edad6b20fe11b321d5.otf",
+    "static/media/NeutralFace.otf": "/static/media/NeutralFace.2872f4f67101cf3b3663.otf",
+    "index.html": "/index.html",
+    "main.d4d90e51.css.map": "/static/css/main.d4d90e51.css.map",
+    "main.b6e574c5.js.map": "/static/js/main.b6e574c5.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d4d90e51.css",
+    "static/js/main.b6e574c5.js"
+  ]
+}
