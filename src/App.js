@@ -1,179 +1,135 @@
 import './App.css'
-import { useState, useEffect, useRef } from 'react'
-import { getPostTeasers } from './utils/getPostTeasers'
+import { useMemo, useRef, useState, useEffect } from 'react'
+import { useCases } from './hooks/useCases'
+
+import AppContainer from './components/Layout/AppContainer'
+import LightOverlay from './components/Overlay/LightOverlay'
+import ExtrasLayer from './components/Extras/ExtrasLayer'
+import FiltersFab from './components/Filters/FiltersFab'
+import FiltersPanel from './components/Filters/FiltersPanel'
+
 import Button from './components/UI/Button/Button.jsx'
 import CaseInfo from './components/CaseInfo/CaseInfo.jsx'
 import Title from './components/Title/Title.jsx'
 
-function App() {
-  const [cases, setCases] = useState([])
-  const [theme, setTheme] = useState('light')
-  const [random, setRandom] = useState(0)
-  const [positions, setPositions] = useState({})
+import { getTopicOfDayId } from './utils/topicOfDay'
 
-  const dragItem = useRef(null)
-  const offset = useRef({ x: 0, y: 0 })
-  const animationFrame = useRef(null)
+export default function App() {
+  const { cases, loading, error } = useCases()
+  const [theme, setTheme] = useState('light')
+
+  // MULTI-SELECT: Set<string>
+  const [selectedTags, setSelectedTags] = useState(new Set())
+  const [filtersOpen, setFiltersOpen] = useState(false)
+
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const containerRef = useRef(null)
+
+  // если ничего не выбрано — показываем все; иначе — кейсы, у которых case.tag входит в Set
+  const filteredCases = useMemo(() => {
+    if (!selectedTags.size) return cases
+    return cases.filter((c) => c?.tag && selectedTags.has(c.tag))
+  }, [cases, selectedTags])
 
   useEffect(() => {
-    getPostTeasers()
-      .then((data) => {
-        const index = Math.floor(Math.random() * data.length)
-        setCases(data)
-        setRandom(index)
+    if (currentIndex > filteredCases.length - 1) setCurrentIndex(0)
+  }, [filteredCases.length, currentIndex])
 
-        const initial = {}
-        data[index].extras?.forEach((_, i) => {
-          initial[i] = {
-            top: Math.floor(Math.random() * 80) + 10,
-            left: Math.floor(Math.random() * 80) + 10
-          }
-        })
-        setPositions(initial)
-      })
-      .catch((err) => {
-        console.error('Ошибка при загрузке данных из Airtable:', err)
-      })
-  }, [])
+  const current = filteredCases[currentIndex]
 
-  function getRandom() {
-    let newRandom
+  const getRandom = () => {
+    if (filteredCases.length <= 1) return
+    let next
     do {
-      newRandom = Math.floor(Math.random() * cases.length)
-    } while (newRandom === random)
-    setRandom(newRandom)
+      next = Math.floor(Math.random() * filteredCases.length)
+    } while (next === currentIndex)
+    setCurrentIndex(next)
+  }
 
-    const initial = {}
-    cases[newRandom].extras?.forEach((_, i) => {
-      initial[i] = {
-        top: Math.floor(Math.random() * 80) + 10,
-        left: Math.floor(Math.random() * 80) + 10
-      }
+  const changeTheme = () => setTheme((t) => (t === 'light' ? 'dark' : 'light'))
+
+  // «все» — просто очистить Set
+  const onSelectAll = () => {
+    setSelectedTags(new Set())
+    setCurrentIndex(0)
+  }
+
+ const topicTagId = getTopicOfDayId()
+
+  // переключение тега в Set
+  const onToggleTag = (id) => {
+    setSelectedTags((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
     })
-    setPositions(initial)
+    setCurrentIndex(0)
   }
 
-  function changeTheme() {
-    setTheme(theme === 'light' ? 'dark' : 'light')
-  }
-
-  const handleMouseDown = (e, idx) => {
-    e.preventDefault()
-    e.stopPropagation()
-
-    dragItem.current = idx
-    const rect = e.target.getBoundingClientRect()
-    offset.current = {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    }
-
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
-  }
-
-  const handleMouseMove = (e) => {
-    if (dragItem.current == null) return
-    if (animationFrame.current) return // throttle via RAF
-
-    animationFrame.current = requestAnimationFrame(() => {
-      const idx = dragItem.current
-      const container = document.querySelector('.App')
-      const rect = container.getBoundingClientRect()
-
-      const x = e.clientX - rect.left - offset.current.x
-      const y = e.clientY - rect.top - offset.current.y
-
-      const newLeft = (x / rect.width) * 100
-      const newTop = (y / rect.height) * 100
-
-      setPositions((prev) => ({
-        ...prev,
-        [idx]: {
-          top: newTop,
-          left: newLeft
-        }
-      }))
-
-      animationFrame.current = null
-    })
-  }
-
-  const handleMouseUp = () => {
-    dragItem.current = null
-    document.removeEventListener('mousemove', handleMouseMove)
-    document.removeEventListener('mouseup', handleMouseUp)
-
-    if (animationFrame.current) {
-      cancelAnimationFrame(animationFrame.current)
-      animationFrame.current = null
-    }
-  }
-
-  if (cases.length === 0) return <p>Загрузка...</p>
+  if (loading) return <p>Загрузка...</p>
+  if (error) return <p>Не удалось загрузить кейсы</p>
 
   return (
-    <div
-      className={`App ${theme}`}
-      style={{
-        backgroundImage: `url(${cases[random].background})`,
-        position: 'relative',
-        overflow: 'hidden'
-      }}
-    >
-      {cases[random].extras?.map((url, idx) => {
-        const pos = positions[idx] || { top: 20, left: 20 }
-
-        return (
-          <img
-            key={idx}
-            className="extra-image"
-            src={url}
-            alt={`extra-${idx}`}
-            onMouseDown={(e) => handleMouseDown(e, idx)}
-            style={{
-              position: 'absolute',
-              top: `${pos.top}%`,
-              left: `${pos.left}%`,
-              zIndex: 4,
-              cursor: 'grab',
-              pointerEvents: 'auto',
-              userSelect: 'none',
-              transition: 'none'
-            }}
-          />
-        )
-      })}
-
-      <CaseInfo
-        cases={cases}
-        random={random}
-        changeTheme={changeTheme}
+    <>
+      <AppContainer
+        ref={containerRef}
         theme={theme}
-      />
+        background={current?.background}
+      >
+        {current && (
+          <>
+            <ExtrasLayer extras={current.extras} containerRef={containerRef} />
+            <CaseInfo current={current} changeTheme={changeTheme} theme={theme} />
+            <LightOverlay enabled={Boolean(current.light)} />
+            <Title
+              theme={theme}
+              cases={cases}
+              random={current ? cases.indexOf(current) : 0}
+            />
+          </>
+        )}
+      </AppContainer>
+      
 
-      {cases[random].light && (
-        <div
-          style={{
-            width: '100vw',
-            height: '100vh',
-            position: 'fixed',
-            backgroundColor: 'rgba(43, 43, 43, 0.2)',
-            top: 0,
-            left: 0,
-            zIndex: 1,
-            pointerEvents: 'none'
-          }}
-        />
-      )}
-
-      <Title theme={theme} cases={cases} random={random} />
-
-      <Button accent absolute onClick={getRandom}>
+      <div className="filtersDock">
+      <Button accent onClick={getRandom} disabled={!current}>
         рандом кейс
       </Button>
+
+      {/* группа фильтров справа от кнопки */}
+      <div className="filtersDock__filters">
+        <FiltersFab onClick={() => setFiltersOpen(v => !v)} active={filtersOpen} />
+        <FiltersPanel
+          docked
+          open={filtersOpen}
+          selected={selectedTags}
+          topicTagId={topicTagId}
+          onToggleTag={onToggleTag}
+          onClearAll={onSelectAll}
+          onClose={() => setFiltersOpen(false)}
+        />
+      </div>
     </div>
+
+      {!current && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 80,
+            left: 12,
+            padding: '8px 10px',
+            background: '#fff',
+            border: '1px solid rgba(0,0,0,0.1)',
+            borderRadius: 10,
+            boxShadow: '0 10px 24px rgba(0,0,0,0.1)',
+            zIndex: 9,
+            fontSize: 14,
+          }}
+        >
+          Нет кейсов по выбранным тегам
+        </div>
+      )}
+    </>
   )
 }
-
-export default App

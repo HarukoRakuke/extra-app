@@ -39,6 +39,7 @@
 
 * {
   margin: 0;
+  box-sizing: border-box;
   padding: 0;
 }
 
@@ -60,12 +61,13 @@
   background-color: black;
 }
 
-.extra-image {
+.extraMedia {
   border-radius: 0.6vw;
   border: 0.1vw solid #fff;
   aspect-ratio: 1;
   width: 15vw;
   object-fit: cover;
+  min-width: 150px;
   box-shadow: 12px 12px 24px 0px rgba(0, 0, 0, 0.6);
 }
 
@@ -74,6 +76,8 @@
   --font-head-1: 300 120px/120px 'Inter', sans-serif;
   --font-text-1: 200 18px/18px 'Inter', sans-serif;
   --font-text-1-bold: 400 18px/18px 'Inter', sans-serif;
+  --font-text-2-bold: 500 16px/16px 'Inter', sans-serif;
+  --font-text-3: 300 12px/12px 'Inter', sans-serif;
 }
 
 h1 {
@@ -83,6 +87,31 @@ h1 {
   letter-spacing: -0.1em;
   color: white;
 }
+
+@media all and (max-width: 1440px) {
+  :root {
+  --font-head-large: 300 200px/200px 'Inter', sans-serif;
+  --font-head-1: 300 120px/120px 'Inter', sans-serif;
+  --font-text-1: 200 18px/18px 'Inter', sans-serif;
+  --font-text-1-bold: 400 18px/18px 'Inter', sans-serif;
+  --font-text-2-bold: 500 16px/16px 'Inter', sans-serif;
+  --font-text-3: 300 12px/12px 'Inter', sans-serif;
+}
+}
+
+
+@media all and (max-width: 600px) {
+  :root {
+  --font-head-large: 300 100px/100px 'Inter', sans-serif;
+  --font-head-1: 300 120px/120px 'Inter', sans-serif;
+  --font-text-1: 200 18px/18px 'Inter', sans-serif;
+  --font-text-1-bold: 400 18px/18px 'Inter', sans-serif;
+  --font-text-2-bold: 500 16px/16px 'Inter', sans-serif;
+  --font-text-3: 300 12px/12px 'Inter', sans-serif;
+}
+}
+
+
 
 p {
   background: white;
@@ -96,4 +125,40 @@ p {
 button {
   font: var(--font-text-1-bold);
   border: none;
+}
+
+.filtersDock {
+  position: absolute;
+  bottom: 20px;
+  margin: 0 auto;
+    z-index: 5;
+  left: 50%;
+  gap: 6px;
+  display: flex;
+  transform: translate(-50%);
+}
+
+.filtersDock__filters {
+  height: 56px;
+  aspect-ratio: 1;
+}
+
+@media all and (min-width: 800px) {
+    .extraMedia {
+        min-width: 250px;
+        min-height: 250px;
+    }
+}
+
+@media all and (max-width: 1100px) {
+    .filtersDock {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media all and (max-width: 800px) {
+  .extraMedia {
+    z-index: 3 !important;
+  }
 }

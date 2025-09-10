@@ -5,6 +5,9 @@
   height: 80px;
   background-repeat: no-repeat;
 }
+
+
+
 .darkTheme {
   background-image: url('../../assets/images/logowhite.png');
 }
@@ -34,4 +37,12 @@
   left: 50vw;
   transform: translate(-50%);
   background-color: black;
+}
+
+
+@media all and (max-width: 800px) {
+  .logo {
+    width: 80px;
+    height: 50px;
+  }
 }

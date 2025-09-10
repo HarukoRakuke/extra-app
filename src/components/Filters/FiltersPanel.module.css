@@ -1,0 +1,129 @@
+.panel {
+  position: fixed;
+  bottom: 68px;
+  z-index: 10;
+  background: #fff;
+  border-radius: 16px;
+
+  padding: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* не забудь синхронизировать с Arrow-навигацией */
+  column-gap: 6px;
+  row-gap: 4px;
+}
+
+.tile {
+  position: relative;
+  text-align: left;
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font: var(--font-text-2-bold);
+  background: #fff;
+  border: 2px solid rgba(0, 0, 0, 0);
+  outline: none;
+}
+.tile:hover {
+  border-color: rgba(0, 0, 0, 0.25);
+}
+.tile:focus-visible {
+  box-shadow: 0 0 0 3px rgba(43, 0, 255, 1);
+}
+.tile.active {
+  border: 2px solid #6B7CFF;
+  background: rgba(107, 124, 255, 0.08);
+}
+
+.tileInner {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  align-items: center;
+}
+
+/* превьюшки-чипсы слева */
+.previewStack {
+  display: flex;
+  align-items: start;
+  position: relative;
+  margin-bottom: 2px;
+}
+
+.thumb {
+  width: 38px;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid rgba(0, 0, 0, 0.12);    
+  background: #f6f7f8;
+}
+.thumb:first-of-type {
+  margin-left: 0;
+  transform: rotate(-6deg);
+      margin-top: 5px
+}
+
+.thumb:nth-of-type(2) {
+  margin-left: -25px;
+  z-index: 2;
+}
+.thumb:nth-of-type(3) {
+  margin-left: -25px;
+    transform: rotate(6deg);
+    margin-top: 5px
+}
+
+.badge {
+  font: var(--font-text-3);
+  line-height: 1;
+  color: rgba(0,0,0,0.55);
+}
+
+.label {
+    font: var(--font-text-2-bold);
+}
+
+@media all and (max-width: 1100px) {
+    .panel {
+        left: 50%;
+        transform: translate(-50%);
+        display: flex;
+        justify-content: center;
+    }
+    .grid {
+            grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+@media all and (max-width: 800px) {
+    .panel {
+                width: unset;
+        display: flex;
+        justify-content: center;
+    }
+    .grid {
+            grid-template-columns: 1fr 1fr;
+            width: 100%;
+    }
+.thumb:nth-of-type(1) {
+display: none;
+}
+.thumb:nth-of-type(3) {
+display: none;
+}
+
+.thumb {
+    margin: unset !important;
+}
+
+.tile {
+    padding: 4px 6px;
+}
+}
