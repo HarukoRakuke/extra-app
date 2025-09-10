@@ -1,0 +1,17 @@
+.wrapper {
+  display: flex;
+  width: 300px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  position: relative;
+  align-items: baseline;
+  z-index: 3;
+}
+
+p {
+  font: var(--font-text-1);
+}
+.wrapper > * {
+  transition: all 0.6s ease;
+  box-shadow: 12px 12px 12px 12px rgba(0, 0, 0, 0.2);
+}
