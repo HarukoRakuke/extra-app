@@ -51,7 +51,7 @@ export default function ExtrasLayer({ extras = [], containerRef, theme = 'light'
     typeof window !== 'undefined' ? window.innerWidth < 800 : true
   )
   const dragItem = useRef(null)
-  const offset = useRef({ x: 0, y: 0 })
+  const offset = useRef({ dx: 0, dy: 0 }) // смещение курсора относительно центра
   const animationFrame = useRef(null)
 
   // --- Random для десктопа
@@ -73,7 +73,6 @@ export default function ExtrasLayer({ extras = [], containerRef, theme = 'light'
     const n = Math.min(4, Math.max(2, extras.length)) // только 2..4
     const preset = PRESETS[theme]?.[n]
     if (!preset) return
-    // если карточек больше 4 — берём первые 4, остальные в то же место
     const next = {}
     for (let i = 0; i < extras.length; i++) {
       const p = preset[Math.min(i, preset.length - 1)]
@@ -100,19 +99,23 @@ export default function ExtrasLayer({ extras = [], containerRef, theme = 'light'
   const handleMouseMove = useCallback((e) => {
     if (dragItem.current == null || !containerRef?.current) return
     if (animationFrame.current) return
+
     animationFrame.current = requestAnimationFrame(() => {
       const idx = dragItem.current
       const rect = containerRef.current.getBoundingClientRect()
-      const x = e.clientX - rect.left - offset.current.x
-      const y = e.clientY - rect.top - offset.current.y
+
+      const centerX = (e.clientX - rect.left) - offset.current.dx
+      const centerY = (e.clientY - rect.top) - offset.current.dy
+
       setPositions((prev) => ({
         ...prev,
         [idx]: {
           ...prev[idx],
-          left: (x / rect.width) * 100,
-          top: (y / rect.height) * 100,
+          left: (centerX / rect.width) * 100,
+          top: (centerY / rect.height) * 100,
         },
       }))
+
       animationFrame.current = null
     })
   }, [containerRef])
@@ -131,11 +134,20 @@ export default function ExtrasLayer({ extras = [], containerRef, theme = 'light'
     e.preventDefault()
     e.stopPropagation()
     dragItem.current = idx
-    const r = e.currentTarget.getBoundingClientRect()
-    offset.current = { x: r.width / 2, y: r.height / 2 } // якорь по центру
+
+    const containerRect = containerRef.current.getBoundingClientRect()
+    const current = positions[idx] || { top: 20, left: 20 }
+    const centerXpx = (current.left / 100) * containerRect.width
+    const centerYpx = (current.top / 100) * containerRect.height
+
+    offset.current = {
+      dx: (e.clientX - containerRect.left) - centerXpx,
+      dy: (e.clientY - containerRect.top) - centerYpx,
+    }
+
     document.addEventListener('mousemove', handleMouseMove)
     document.addEventListener('mouseup', handleMouseUp)
-  }, [handleMouseMove, handleMouseUp])
+  }, [containerRef, positions, handleMouseMove, handleMouseUp])
 
   useEffect(() => {
     return () => {
@@ -158,7 +170,7 @@ export default function ExtrasLayer({ extras = [], containerRef, theme = 'light'
       left: `${pos.left}%`,
       transform: `translate(-50%, -50%) rotate(${pos.rotate || 0}deg)`,
       zIndex: pos.z ?? 4,
-      cursor: 'grab',
+      cursor: dragItem.current === idx ? 'grabbing' : 'grab',
       pointerEvents: 'auto',
       userSelect: 'none',
       transition: 'none',
