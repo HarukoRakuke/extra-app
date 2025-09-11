@@ -79,7 +79,7 @@ export default function App() {
       >
         {current && (
           <>
-            <ExtrasLayer extras={current.extras} containerRef={containerRef} />
+            <ExtrasLayer extras={current.extras} containerRef={containerRef}  theme={theme}  />
             <CaseInfo current={current} changeTheme={changeTheme} theme={theme} />
             <LightOverlay enabled={Boolean(current.light)} />
             <Title

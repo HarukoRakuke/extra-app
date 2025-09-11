@@ -45,7 +45,7 @@ function getPostTeasers() {
             title: f['title'] || '',
             description: f['description'] || '',
             link: f['link'] || '',
-            light: f['light']?.name === 'true',
+            light: f['light'] === 'true',
             tag: f['tags'] || '',
             background: f['backround']?.[0]?.url || '',
             extras: normalizeExtrasFromImages(images) // [{type,url}]

@@ -6,7 +6,7 @@ export default function LightOverlay({ enabled }) {
         width: '100vw',
         height: '100vh',
         position: 'fixed',
-        backgroundColor: 'rgba(43, 43, 43, 0.2)',
+        background: 'linear-gradient(to bottom, rgba(43, 43, 43, 0) 0%, rgba(43, 43, 43, 0.7) 100%)',
         top: 0,
         left: 0,
         zIndex: 1,

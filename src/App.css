@@ -91,23 +91,16 @@ h1 {
 @media all and (max-width: 1440px) {
   :root {
   --font-head-large: 300 200px/200px 'Inter', sans-serif;
-  --font-head-1: 300 120px/120px 'Inter', sans-serif;
-  --font-text-1: 200 18px/18px 'Inter', sans-serif;
-  --font-text-1-bold: 400 18px/18px 'Inter', sans-serif;
-  --font-text-2-bold: 500 16px/16px 'Inter', sans-serif;
-  --font-text-3: 300 12px/12px 'Inter', sans-serif;
 }
 }
 
 
 @media all and (max-width: 600px) {
   :root {
-  --font-head-large: 300 100px/100px 'Inter', sans-serif;
-  --font-head-1: 300 120px/120px 'Inter', sans-serif;
-  --font-text-1: 200 18px/18px 'Inter', sans-serif;
-  --font-text-1-bold: 400 18px/18px 'Inter', sans-serif;
-  --font-text-2-bold: 500 16px/16px 'Inter', sans-serif;
-  --font-text-3: 300 12px/12px 'Inter', sans-serif;
+  --font-head-large: 300 80px/80px 'Inter', sans-serif;
+  --font-head-1: 300 60px/60px 'Inter', sans-serif;
+  --font-text-1: 200 16px/16px 'Inter', sans-serif;
+  --font-text-1-bold: 400 16px/16px 'Inter', sans-serif;
 }
 }
 
@@ -147,6 +140,7 @@ button {
     .extraMedia {
         min-width: 250px;
         min-height: 250px;
+      
     }
 }
 
@@ -160,5 +154,6 @@ button {
 @media all and (max-width: 800px) {
   .extraMedia {
     z-index: 3 !important;
+     border-radius: 6px;
   }
 }

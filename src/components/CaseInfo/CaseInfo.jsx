@@ -24,9 +24,16 @@ export default function CaseInfo({ current, changeTheme, theme }) {
         wrapper.style.position = 'absolute'
 
         if (screenWidth <= 800) {
-          // Центрируем с лёгким смещением вниз
-          wrapper.style.left = `${(screenWidth - wrapperRect.width) / 2}px`
-          wrapper.style.top = `${(screenHeight - wrapperRect.height) / 2 + screenHeight * 0.1}px`
+          // Центрируем с поправкой по теме
+          const baseLeft = (screenWidth - wrapperRect.width) / 2
+          const baseTop = (screenHeight - wrapperRect.height) / 2
+          const offset = screenHeight * 0.05 // величина смещения
+
+          wrapper.style.left = `${baseLeft}px`
+          wrapper.style.top =
+            theme === 'light'
+              ? `${baseTop + offset}px` // вниз
+              : `${baseTop - offset}px` // вверх
         } else {
           // Рандом на больших экранах
           const maxLeft = Math.max(0, screenWidth * 0.7 - wrapperRect.width)
@@ -45,8 +52,7 @@ export default function CaseInfo({ current, changeTheme, theme }) {
       item.style.marginTop = `${mt}px`
       item.style.marginLeft = `${ml}px`
     })
-    // лучше завязываться на стабильный ключ
-  }, [current?.id || current?.link || current?.description])
+  }, [current?.id || current?.link || current?.description, theme])
 
   return (
     <div className={cl.wrapper} ref={containerRef}>

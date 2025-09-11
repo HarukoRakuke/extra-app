@@ -18,3 +18,11 @@
   top: 120px;
   font: var(--font-head-large);
 }
+
+@media all and (max-width: 800px) {
+  .darkTheme {
+        top:90px;
+  }
+}
+
+
