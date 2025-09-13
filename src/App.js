@@ -11,8 +11,25 @@ import FiltersPanel from './components/Filters/FiltersPanel'
 import Button from './components/UI/Button/Button.jsx'
 import CaseInfo from './components/CaseInfo/CaseInfo.jsx'
 import Title from './components/Title/Title.jsx'
+import SkeletonScreen from './components/UI/SkeletonScreen/SkeletonScreen.jsx'
 
 import { getTopicOfDayId } from './utils/topicOfDay'
+
+// утилита предзагрузки изображений
+function preloadImages(urls = []) {
+  const unique = Array.from(new Set(urls.filter(Boolean)))
+  if (!unique.length) return Promise.resolve()
+  return Promise.all(
+    unique.map(
+      (src) =>
+        new Promise((resolve) => {
+          const img = new Image()
+          img.onload = img.onerror = () => resolve()
+          img.src = src
+        })
+    )
+  )
+}
 
 export default function App() {
   const { cases, loading, error } = useCases()
@@ -23,40 +40,69 @@ export default function App() {
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [caseReady, setCaseReady] = useState(false) // ассеты текущего кейса готовы
   const containerRef = useRef(null)
 
-  // если ничего не выбрано — показываем все; иначе — кейсы, у которых case.tag входит в Set
+  // фильтрация
   const filteredCases = useMemo(() => {
     if (!selectedTags.size) return cases
     return cases.filter((c) => c?.tag && selectedTags.has(c.tag))
   }, [cases, selectedTags])
 
+  // при изменении списка — выбираем случайный кейс
   useEffect(() => {
-    if (currentIndex > filteredCases.length - 1) setCurrentIndex(0)
-  }, [filteredCases.length, currentIndex])
+    if (!filteredCases || filteredCases.length === 0) return
+    setCurrentIndex(Math.floor(Math.random() * filteredCases.length))
+  }, [filteredCases])
 
   const current = filteredCases[currentIndex]
+  const hasCases = !!(filteredCases && filteredCases.length > 0)
+
+  // предзагрузка ассетов нового кейса и показ скелетона на время
+  useEffect(() => {
+    if (!hasCases) return
+    let cancelled = false
+    // при смене индекса — сначала показываем скелетоны
+    setCaseReady(false)
+
+    // собираем потенциальные изображения кейса
+    const urls = []
+    if (current?.background) urls.push(current.background)
+    if (Array.isArray(current?.extras)) {
+      current.extras.forEach((e) => {
+        if (typeof e === 'string') urls.push(e)
+        else if (e?.src) urls.push(e.src)
+      })
+    }
+    if (current?.image) urls.push(current.image)
+    if (Array.isArray(current?.images)) urls.push(...current.images)
+
+    preloadImages(urls).finally(() => {
+      if (!cancelled) setCaseReady(true)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [currentIndex, hasCases]) // обновляемся именно на смену текущего кейса
 
   const getRandom = () => {
-    if (filteredCases.length <= 1) return
+    if (!hasCases || filteredCases.length <= 1) return
     let next
     do {
       next = Math.floor(Math.random() * filteredCases.length)
     } while (next === currentIndex)
-    setCurrentIndex(next)
+    setCurrentIndex(next) // скелетоны появятся сами (caseReady=false), потом предзагрузка
   }
 
   const changeTheme = () => setTheme((t) => (t === 'light' ? 'dark' : 'light'))
 
-  // «все» — просто очистить Set
   const onSelectAll = () => {
     setSelectedTags(new Set())
-    setCurrentIndex(0)
   }
 
- const topicTagId = getTopicOfDayId()
+  const topicTagId = getTopicOfDayId()
 
-  // переключение тега в Set
   const onToggleTag = (id) => {
     setSelectedTags((prev) => {
       const next = new Set(prev)
@@ -64,23 +110,42 @@ export default function App() {
       else next.add(id)
       return next
     })
-    setCurrentIndex(0)
   }
 
-  if (loading) return <p>Загрузка...</p>
   if (error) return <p>Не удалось загрузить кейсы</p>
+
+  // Показ скелетона:
+  // - пока идёт загрузка данных (loading)
+  // - или когда есть кейсы, но ассеты текущего ещё не догрузились
+  const showSkeleton = loading || (hasCases && !caseReady)
+
+  // фон подставляем только когда кейс готов, чтобы не мигало старым
+  const safeBackground = hasCases && caseReady ? current?.background : undefined
 
   return (
     <>
       <AppContainer
         ref={containerRef}
         theme={theme}
-        background={current?.background}
+        background={safeBackground}
+        key={current?.id || currentIndex}
       >
-        {current && (
+        {showSkeleton ? (
+          <SkeletonScreen />
+        ) : hasCases && current ? (
           <>
-            <ExtrasLayer extras={current.extras} containerRef={containerRef}  theme={theme}  />
-            <CaseInfo current={current} changeTheme={changeTheme} theme={theme} />
+            <ExtrasLayer
+              key={`extras-${current?.id || currentIndex}`}
+              extras={current.extras}
+              containerRef={containerRef}
+              theme={theme}
+            />
+            <CaseInfo
+              key={`info-${current?.id || currentIndex}`}
+              current={current}
+              changeTheme={changeTheme}
+              theme={theme}
+            />
             <LightOverlay enabled={Boolean(current.light)} />
             <Title
               theme={theme}
@@ -88,31 +153,30 @@ export default function App() {
               random={current ? cases.indexOf(current) : 0}
             />
           </>
-        )}
+        ) : null}
       </AppContainer>
-      
 
       <div className="filtersDock">
-      <Button accent onClick={getRandom} disabled={!current}>
-        рандом кейс
-      </Button>
+        <Button accent onClick={getRandom} disabled={!hasCases || !current}>
+          рандом кейс
+        </Button>
 
-      {/* группа фильтров справа от кнопки */}
-      <div className="filtersDock__filters">
-        <FiltersFab onClick={() => setFiltersOpen(v => !v)} active={filtersOpen} />
-        <FiltersPanel
-          docked
-          open={filtersOpen}
-          selected={selectedTags}
-          topicTagId={topicTagId}
-          onToggleTag={onToggleTag}
-          onClearAll={onSelectAll}
-          onClose={() => setFiltersOpen(false)}
-        />
+        {/* группа фильтров справа от кнопки */}
+        <div className="filtersDock__filters">
+          <FiltersFab onClick={() => setFiltersOpen(v => !v)} active={filtersOpen} />
+          <FiltersPanel
+            docked
+            open={filtersOpen}
+            selected={selectedTags}
+            topicTagId={topicTagId}
+            onToggleTag={onToggleTag}
+            onClearAll={onSelectAll}
+            onClose={() => setFiltersOpen(false)}
+          />
+        </div>
       </div>
-    </div>
 
-      {!current && (
+      {!loading && !hasCases && (
         <div
           style={{
             position: 'fixed',
