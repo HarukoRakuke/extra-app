@@ -43,6 +43,10 @@
   padding: 0;
 }
 
+body {
+  overflow: hidden;
+}
+
 .App {
   width: 100vw;
   height: 100vh;
