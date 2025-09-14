@@ -5,8 +5,9 @@ import { useEffect, useRef, useState, useCallback } from 'react'
  * координаты задаются в %, позиционирование по ЦЕНТРУ элемента
  * (используем translate(-50%, -50%)), rotate в градусах, z задаёт перекрытие.
  *
- * Для light — дуга сверху, для dark — снизу.
- * Сделала умеренное «наезд» — меняй top/left/rotate/z как нужно.
+ * Для light — дуга сверху (top).
+ * Для dark  — дуга снизу (bottom).
+ * Можно свободно менять top/left/rotate/z (или bottom/left/rotate/z для dark).
  */
 const PRESETS = {
   light: {
@@ -28,19 +29,19 @@ const PRESETS = {
   },
   dark: {
     2: [
-      { top: 78, left: 41, rotate:  8, z: 10 },
-      { top: 78, left: 59, rotate: -8, z: 11 },
+      { bottom: 22, left: 41, rotate:  8, z: 10 },
+      { bottom: 22, left: 59, rotate: -8, z: 11 },
     ],
     3: [
-      { top: 72, left: 32, rotate: 12, z: 9 },
-      { top: 74, left: 50, rotate:  0, z: 12 }, // центральная сверху
-      { top: 72, left: 68, rotate:-12, z: 9 },
+      { bottom: 18, left: 32, rotate: 12, z: 9 },
+      { bottom: 16, left: 50, rotate:  0, z: 12 }, // центральная снизу
+      { bottom: 18, left: 68, rotate:-12, z: 9 },
     ],
     4: [
-      { top: 75, left: 25, rotate: 14, z: 8 },
-      { top: 76, left: 41, rotate:  6, z: 10 },
-      { top: 76, left: 59, rotate: -6, z: 10 },
-      { top: 75, left: 75, rotate:-14, z: 8 },
+      { bottom: 15, left: 25, rotate: 14, z: 8 },
+      { bottom: 14, left: 41, rotate:  6, z: 10 },
+      { bottom: 14, left: 59, rotate: -6, z: 10 },
+      { bottom: 15, left: 75, rotate:-14, z: 8 },
     ],
   },
 }
@@ -51,7 +52,7 @@ export default function ExtrasLayer({ extras = [], containerRef, theme = 'light'
     typeof window !== 'undefined' ? window.innerWidth < 800 : true
   )
   const dragItem = useRef(null)
-  const offset = useRef({ dx: 0, dy: 0 }) // смещение курсора относительно центра
+  const offset = useRef({ dx: 0, dy: 0 }) // смещение курсора относительно ЦЕНТРА элемента
   const animationFrame = useRef(null)
 
   // --- Random для десктопа
@@ -95,7 +96,7 @@ export default function ExtrasLayer({ extras = [], containerRef, theme = 'light'
     else setRandomPositions()
   }, [extras, theme, isMobile, applyPreset, setRandomPositions])
 
-  // --- drag
+  // --- drag (учитываем top ИЛИ bottom в pos)
   const handleMouseMove = useCallback((e) => {
     if (dragItem.current == null || !containerRef?.current) return
     if (animationFrame.current) return
@@ -107,14 +108,25 @@ export default function ExtrasLayer({ extras = [], containerRef, theme = 'light'
       const centerX = (e.clientX - rect.left) - offset.current.dx
       const centerY = (e.clientY - rect.top) - offset.current.dy
 
-      setPositions((prev) => ({
-        ...prev,
-        [idx]: {
-          ...prev[idx],
+      setPositions((prev) => {
+        const prevPos = prev[idx] || {}
+        const nextPos = {
+          ...prevPos,
           left: (centerX / rect.width) * 100,
-          top: (centerY / rect.height) * 100,
-        },
-      }))
+        }
+
+        // если позиционировались через top — обновляем top
+        if (prevPos.top !== undefined || prevPos.bottom === undefined) {
+          nextPos.top = (centerY / rect.height) * 100
+          delete nextPos.bottom
+        } else {
+          // иначе позиционировались через bottom — обновляем bottom
+          nextPos.bottom = (1 - centerY / rect.height) * 100
+          delete nextPos.top
+        }
+
+        return { ...prev, [idx]: nextPos }
+      })
 
       animationFrame.current = null
     })
@@ -137,12 +149,21 @@ export default function ExtrasLayer({ extras = [], containerRef, theme = 'light'
 
     const containerRect = containerRef.current.getBoundingClientRect()
     const current = positions[idx] || { top: 20, left: 20 }
-    const centerXpx = (current.left / 100) * containerRect.width
-    const centerYpx = (current.top / 100) * containerRect.height
+
+    // переводим pos в координаты центра в px
+    const currentLeftPx = (current.left / 100) * containerRect.width
+
+    // если bottom задан — считаем top как (100 - bottom) для вычисления центра
+    const effectiveTopPercent =
+      current.top !== undefined
+        ? current.top
+        : (current.bottom !== undefined ? (100 - current.bottom) : 20)
+
+    const currentTopPx = (effectiveTopPercent / 100) * containerRect.height
 
     offset.current = {
-      dx: (e.clientX - containerRect.left) - centerXpx,
-      dy: (e.clientY - containerRect.top) - centerYpx,
+      dx: (e.clientX - containerRect.left) - currentLeftPx,
+      dy: (e.clientY - containerRect.top) - currentTopPx,
     }
 
     document.addEventListener('mousemove', handleMouseMove)
@@ -166,7 +187,8 @@ export default function ExtrasLayer({ extras = [], containerRef, theme = 'light'
 
     const commonStyle = {
       position: 'absolute',
-      top: `${pos.top}%`,
+      ...(pos.top !== undefined ? { top: `${pos.top}%` } : {}),
+      ...(pos.bottom !== undefined ? { bottom: `${pos.bottom}%` } : {}),
       left: `${pos.left}%`,
       transform: `translate(-50%, -50%) rotate(${pos.rotate || 0}deg)`,
       zIndex: pos.z ?? 4,

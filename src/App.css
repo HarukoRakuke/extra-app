@@ -43,7 +43,7 @@
   padding: 0;
 }
 
-body {
+body, #root {
   overflow: hidden;
   height: 100vh;
   position: relative;
@@ -103,7 +103,7 @@ h1 {
 
 @media all and (max-width: 600px) {
   :root {
-  --font-head-large: 300 80px/80px 'Inter', sans-serif;
+  --font-head-large: 300 60px/60px 'Inter', sans-serif;
   --font-head-1: 300 60px/60px 'Inter', sans-serif;
   --font-text-1: 200 16px/16px 'Inter', sans-serif;
   --font-text-1-bold: 400 16px/16px 'Inter', sans-serif;
