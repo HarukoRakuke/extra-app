@@ -86,7 +86,7 @@
 @media all and (max-width: 600px) {
     .skeletonHero {
         width: 300px;
-        bottom: 130px;
+        bottom: 105px;
     }
     .skeletonButtonFlex {
       bottom: 30px;
