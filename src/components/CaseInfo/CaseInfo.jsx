@@ -27,7 +27,7 @@ export default function CaseInfo({ current, changeTheme, theme }) {
           // Центрируем с поправкой по теме
           const baseLeft = (screenWidth - wrapperRect.width) / 2
           const baseTop = (screenHeight - wrapperRect.height) / 2
-          const offset = screenHeight * 0.05 // величина смещения
+          const offset = screenHeight * 0 // величина смещения
 
           wrapper.style.left = `${baseLeft}px`
           wrapper.style.top =

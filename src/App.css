@@ -163,3 +163,8 @@ button {
      border-radius: 6px;
   }
 }
+@media all and (max-width: 600px) {
+  .filtersDock {
+    bottom: 60px;
+  }
+}
