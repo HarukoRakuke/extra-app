@@ -1,7 +1,7 @@
 .skeletonScreen {
   position: relative;
   width: 100vw;
-  height: 100vh;
+  height: 100svh;
   overflow: hidden;
   z-index: 99;
   background-color: #151515;
@@ -86,9 +86,14 @@
 @media all and (max-width: 600px) {
     .skeletonHero {
         width: 300px;
-        bottom: 160px;
+        bottom: 130px;
     }
     .skeletonButtonFlex {
-      bottom: 60px;
+      bottom: 30px;
+    }
+
+    .logo {
+          width: 70px;
+    height: 40px;
     }
 }

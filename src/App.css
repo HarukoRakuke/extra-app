@@ -165,6 +165,6 @@ button {
 }
 @media all and (max-width: 600px) {
   .filtersDock {
-    bottom: 60px;
+    bottom: 30px;
   }
 }
