@@ -45,13 +45,13 @@
 
 body, #root {
   overflow: hidden;
-  height: 100vh;
+  height: 100svh;
   position: relative;
 }
 
 .App {
   width: 100vw;
-  height: 100vh;
+  height: 100svh;
   overflow: hidden;
   position: relative;
   background-position: center;
