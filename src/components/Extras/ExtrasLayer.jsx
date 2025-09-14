@@ -29,19 +29,19 @@ const PRESETS = {
   },
   dark: {
     2: [
-      { bottom: 22, left: 41, rotate:  8, z: 10 },
-      { bottom: 22, left: 59, rotate: -8, z: 11 },
+      { bottom: 14, left: 41, rotate:  8, z: 10 },
+      { bottom: 14, left: 59, rotate: -8, z: 11 },
     ],
     3: [
-      { bottom: 18, left: 32, rotate: 12, z: 9 },
-      { bottom: 16, left: 50, rotate:  0, z: 12 }, // центральная снизу
-      { bottom: 18, left: 68, rotate:-12, z: 9 },
+      { bottom: 10, left: 32, rotate: 12, z: 9 },
+      { bottom: 8, left: 50, rotate:  0, z: 12 }, // центральная снизу
+      { bottom: 10, left: 68, rotate:-12, z: 9 },
     ],
     4: [
-      { bottom: 15, left: 25, rotate: 14, z: 8 },
-      { bottom: 14, left: 41, rotate:  6, z: 10 },
-      { bottom: 14, left: 59, rotate: -6, z: 10 },
-      { bottom: 15, left: 75, rotate:-14, z: 8 },
+      { bottom: 7, left: 25, rotate: 14, z: 8 },
+      { bottom: 8, left: 41, rotate:  6, z: 10 },
+      { bottom: 8, left: 59, rotate: -6, z: 10 },
+      { bottom: 7, left: 75, rotate:-14, z: 8 },
     ],
   },
 }
