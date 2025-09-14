@@ -39,8 +39,8 @@ const PRESETS = {
     ],
     4: [
       { bottom: 7, left: 25, rotate: 14, z: 8 },
-      { bottom: 8, left: 41, rotate:  6, z: 10 },
-      { bottom: 8, left: 59, rotate: -6, z: 10 },
+      { bottom: 6, left: 41, rotate:  6, z: 10 },
+      { bottom: 6, left: 59, rotate: -6, z: 10 },
       { bottom: 7, left: 75, rotate:-14, z: 8 },
     ],
   },
